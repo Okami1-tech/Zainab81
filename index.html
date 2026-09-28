@@ -1,0 +1,287 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080611">
+<title>The Unwritten Days | Hayati</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#080611;--pink:#ff9acb;--purple:#b89aff;
+  --muted:#a69bae;--line:rgba(255,255,255,.12);
+}
+body{
+  margin:0;background:var(--bg);color:#fff;
+  font-family:Georgia,'Times New Roman',serif;
+  min-height:100vh;overflow-x:hidden;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+main{position:relative;z-index:1;min-height:100vh;padding:22px 20px 50px}
+header{display:flex;justify-content:space-between;align-items:center;
+  max-width:650px;margin:auto;font:10px Arial;letter-spacing:2px;color:#b9adbf}
+#clock{font-size:12px;letter-spacing:1px;color:#fff;text-align:right}
+.hero{max-width:650px;margin:12vh auto 0;text-align:center}
+.kicker{font:10px Arial;letter-spacing:5px;color:var(--pink);text-transform:uppercase}
+h1{font-size:clamp(43px,11vw,76px);font-weight:normal;line-height:.98;
+  letter-spacing:-2px;margin:22px 0}
+h1 em{font-weight:normal;color:var(--pink)}
+.intro{font-size:17px;line-height:1.8;color:#c8bdce;max-width:450px;margin:22px auto}
+.hint{font:10px Arial;letter-spacing:3px;color:#8c8095;margin-top:35px}
+.mapWrap{max-width:560px;margin:55px auto 0}
+.mapTitle{text-align:center;font:10px Arial;letter-spacing:4px;color:#988aa2;margin-bottom:20px}
+.constellation{position:relative;height:360px;border:1px solid rgba(255,255,255,.06);
+  border-radius:28px;background:radial-gradient(ellipse at center,rgba(143,92,196,.1),transparent 70%);
+  overflow:hidden}
+svg.lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.lines path{fill:none;stroke:rgba(193,151,255,.25);stroke-width:1;stroke-dasharray:3 7}
+.star{
+  position:absolute;transform:translate(-50%,-50%);border:0;background:transparent;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  min-width:90px;padding:8px;z-index:2
+}
+.star .orb{width:15px;height:15px;border-radius:50%;background:var(--pink);
+  box-shadow:0 0 12px var(--pink),0 0 30px rgba(255,154,203,.5);
+  animation:glow 3s infinite ease-in-out}
+.star:nth-of-type(2) .orb,.star:nth-of-type(4) .orb{background:var(--purple);
+  box-shadow:0 0 12px var(--purple),0 0 30px rgba(184,154,255,.5)}
+.star span:last-child{font:9px Arial;letter-spacing:1.5px;color:#d2c6d9;white-space:nowrap}
+.star:active{transform:translate(-50%,-50%) scale(.92)}
+.star.visited .orb{background:#fff;box-shadow:0 0 18px #fff}
+@keyframes glow{50%{transform:scale(.7);opacity:.65}}
+#s1{left:22%;top:24%}#s2{left:70%;top:18%}
+#s3{left:47%;top:48%}#s4{left:24%;top:75%}
+#s5{left:76%;top:76%}
+.bottomNote{max-width:550px;margin:20px auto 0;text-align:center;
+  font:10px Arial;letter-spacing:1.5px;color:#817688;line-height:1.8}
+.modal{position:fixed;inset:0;z-index:10;background:rgba(4,2,9,.84);
+  display:none;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(14px)}
+.modal.open{display:flex}
+.paper{width:min(100%,460px);max-height:85vh;overflow:auto;
+  padding:32px 25px;border:1px solid var(--line);border-radius:25px;
+  background:linear-gradient(145deg,#171021,#0d0a15);
+  box-shadow:0 20px 90px rgba(0,0,0,.5);text-align:center;position:relative}
+.close{position:absolute;right:15px;top:12px;border:1px solid var(--line);
+  border-radius:50%;background:transparent;width:34px;height:34px;font:18px Arial;color:#cbbfd2}
+.paper small{font:9px Arial;letter-spacing:4px;color:var(--pink);text-transform:uppercase}
+.paper h2{font-size:32px;font-weight:normal;line-height:1.1;margin:18px 0}
+.paper p{font-size:17px;line-height:1.85;color:#d1c7d7;white-space:pre-line}
+.action{border:1px solid rgba(255,154,203,.35);border-radius:30px;
+  background:rgba(255,154,203,.08);padding:13px 22px;margin-top:20px;
+  font:10px Arial;letter-spacing:2px}
+.sealed{max-width:550px;margin:28px auto 0;text-align:center}
+.sealed button{border:1px solid rgba(184,154,255,.35);background:rgba(184,154,255,.06);
+  border-radius:18px;padding:18px;width:100%;color:#e8dfff}
+.sealed strong{display:block;font-size:18px;font-weight:normal;margin-bottom:8px}
+.sealed span{font:9px Arial;letter-spacing:2px;color:#a99ab9}
+#final{display:none}
+#final.show{display:block}
+#final .paper{border-color:rgba(255,154,203,.28)}
+.big{font-size:clamp(36px,10vw,60px);color:#fff;text-shadow:0 0 25px #bb7dff}
+footer{text-align:center;color:#766a7d;font:9px Arial;letter-spacing:2px;margin:40px auto 0}
+@media(min-height:850px){.hero{margin-top:13vh}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="sky"></canvas>
+<main>
+  <header>
+    <div>PRIVATE ARCHIVE · H</div>
+    <div id="clock">--:--:--</div>
+  </header>
+
+  <section class="hero">
+    <div class="kicker">A place beyond today</div>
+    <h1>THE<br><em>UNWRITTEN</em><br>DAYS</h1>
+    <p class="intro">
+      Hayati, there are moments I imagine that haven't happened yet.
+      I can't show you the future, but I can show you some of the
+      little things I hope we get to live.
+    </p>
+    <div class="hint">EXPLORE THE STARS BELOW</div>
+  </section>
+
+  <section class="mapWrap">
+    <div class="mapTitle">A CONSTELLATION OF LITTLE HOPES</div>
+    <div class="constellation">
+      <svg class="lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <path d="M22 24 L70 18 L47 48 L24 75 L76 76 L47 48"/>
+      </svg>
+      <button class="star" id="s1" data-card="care">
+        <span class="orb"></span><span>THE LITTLE THINGS</span>
+      </button>
+      <button class="star" id="s2" data-card="ordinary">
+        <span class="orb"></span><span>AN ORDINARY DAY</span>
+      </button>
+      <button class="star" id="s3" data-card="becoming">
+        <span class="orb"></span><span>THE MAN I BECOME</span>
+      </button>
+      <button class="star" id="s4" data-card="home">
+        <span class="orb"></span><span>A PLACE CALLED HOME</span>
+      </button>
+      <button class="star" id="s5" data-card="dua">
+        <span class="orb"></span><span>WHAT I PRAY FOR</span>
+      </button>
+    </div>
+    <div class="bottomNote">OPEN THEM IN ANY ORDER. SOME THINGS ARE WORTH TAKING YOUR TIME WITH.</div>
+  </section>
+
+  <section class="sealed">
+    <button id="sealBtn">
+      <strong>✧ A day not yet opened ✧</strong>
+      <span>SEALED · OPEN WHEN YOU'RE READY</span>
+    </button>
+  </section>
+  <footer>MADE FOR SARAUNIYA · WITH LOVE</footer>
+</main>
+
+<div class="modal" id="modal">
+  <div class="paper">
+    <button class="close" id="close">×</button>
+    <small id="modalTag">A LITTLE THOUGHT</small>
+    <h2 id="modalTitle"></h2>
+    <p id="modalText"></p>
+    <button class="action" id="done">KEEP THIS WITH YOU</button>
+  </div>
+</div>
+
+<div class="modal" id="final">
+  <div class="paper">
+    <button class="close" id="finalClose">×</button>
+    <small>THE DAY I PRAY FOR</small>
+    <h2 class="big">Nikkah</h2>
+    <p>
+      Insha'Allah.
+
+      Sarauniya, before I could call you my wife,
+      you were already reminding me to eat,
+      telling me to sleep, and checking if I was okay.
+
+      Sometimes I think about how those little acts
+      of care might feel when we're finally sharing
+      the same home.
+
+      I don't know when that day will come.
+      Only Allah knows what He has written.
+
+      But I pray that if this is our path,
+      He guides us to it with patience,
+      protects what is good between us,
+      and places barakah in the home we hope to build.
+
+      I want to keep becoming someone who can
+      care for you with the same tenderness
+      you have shown me.
+
+      My Hayati, may Allah make our waiting
+      meaningful, and our future full of peace.
+    </p>
+    <button class="action" id="finalDone">CLOSE THIS LETTER</button>
+  </div>
+</div>
+
+<script>
+const cards={
+ care:{
+  tag:"THE LITTLE THINGS",
+  title:"You care in details.",
+  text:"You ask if I've eaten. You remind me to sleep. You check that I'm okay, even when you can't be beside me.\n\nMaybe these moments seem ordinary from your side. From mine, they are becoming some of the things I cherish most.\n\nI hope I learn to notice your needs just as carefully."
+ },
+ ordinary:{
+  tag:"AN ORDINARY DAY",
+  title:"Nothing extraordinary.",
+  text:"I imagine a day with no big plans. Just us talking, sharing food, laughing at something silly, and checking on each other.\n\nNo grand occasion. No perfect scene. Just the quiet comfort of being present in each other's lives.\n\nThat's a kind of happiness I hope we get to know."
+ },
+ becoming:{
+  tag:"THE MAN I BECOME",
+  title:"I'm still growing.",
+  text:"Your care reminds me that love is not only about what I feel. It's also about the kind of person I choose to become.\n\nI want to keep working, learning, and building with sincerity. Not because I have everything figured out, but because the future deserves effort, honesty, and responsibility.\n\nI hope I can be a source of care and calm for you too."
+ },
+ home:{
+  tag:"A PLACE CALLED HOME",
+  title:"A little peace.",
+  text:"I don't know what our home might look like, or what life will ask of us along the way.\n\nBut I imagine a place where we can be ourselves, speak gently even when we're tired, make room for each other's dreams, and remember to thank Allah for the little things.\n\nA home is more than walls. I hope we build one with kindness."
+ },
+ dua:{
+  tag:"WHAT I PRAY FOR",
+  title:"Ya Allah...",
+  text:"Guide us toward what is good. Give us patience when we have to wait, wisdom when we have choices to make, and humility when things go well.\n\nProtect us from harm, help us treat each other with mercy, and place barakah in our steps if You have written this future for us.\n\nAmeen."
+ }
+};
+
+const modal=document.getElementById("modal");
+const title=document.getElementById("modalTitle");
+const text=document.getElementById("modalText");
+const tag=document.getElementById("modalTag");
+let visited=new Set();
+
+function openCard(key){
+ const card=cards[key];
+ if(!card)return;
+ tag.textContent=card.tag;
+ title.textContent=card.title;
+ text.textContent=card.text;
+ modal.classList.add("open");
+ const star=document.querySelector(`[data-card="${key}"]`);
+ if(star)star.classList.add("visited");
+ visited.add(key);
+}
+document.querySelectorAll("[data-card]").forEach(el=>{
+ el.addEventListener("click",()=>openCard(el.dataset.card));
+});
+function closeModal(){modal.classList.remove("open")}
+document.getElementById("close").onclick=closeModal;
+document.getElementById("done").onclick=closeModal;
+modal.addEventListener("click",e=>{if(e.target===modal)closeModal()});
+
+const final=document.getElementById("final");
+document.getElementById("sealBtn").onclick=()=>{
+ final.classList.add("open");
+};
+function closeFinal(){final.classList.remove("open")}
+document.getElementById("finalClose").onclick=closeFinal;
+document.getElementById("finalDone").onclick=closeFinal;
+final.addEventListener("click",e=>{if(e.target===final)closeFinal()});
+
+function updateClock(){
+ const d=new Date();
+ document.getElementById("clock").textContent=
+  d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"});
+}
+updateClock();
+setInterval(updateClock,1000);
+
+// Gentle starfield, kept lightweight for phones.
+const canvas=document.getElementById("sky");
+const ctx=canvas.getContext("2d");
+let w,h,stars=[];
+function resize(){
+ w=canvas.width=innerWidth*devicePixelRatio;
+ h=canvas.height=innerHeight*devicePixelRatio;
+ canvas.style.width=innerWidth+"px";
+ canvas.style.height=innerHeight+"px";
+ ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+ stars=Array.from({length:85},()=>({
+  x:Math.random()*innerWidth,y:Math.random()*innerHeight,
+  r:Math.random()*1.2+.2,a:Math.random()*.45+.12,
+  p:Math.random()*6.28
+ }));
+}
+resize();addEventListener("resize",resize);
+function draw(t){
+ ctx.clearRect(0,0,innerWidth,innerHeight);
+ stars.forEach(s=>{
+  const a=s.a+Math.sin(t*.0008+s.p)*.12;
+  ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+  ctx.fillStyle=`rgba(220,194,255,${Math.max(.04,a)})`;ctx.fill();
+ });
+ requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>
